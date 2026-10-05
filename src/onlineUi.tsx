@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import type { MatchView } from './onlineTypes'
 import { objectiveInfo } from './objectives'
+import { powerCardInfo } from './powerCards'
 
 export const nm = (v: MatchView, i: number | null | undefined) =>
   i === null || i === undefined ? '—' : (v.players[i]?.name ?? '?')
@@ -116,6 +117,58 @@ export function ObjectiveCard({
       )}
     </div>
   )
+}
+
+// Carta de Poder com nome e descrição da ação
+export function PowerCardView({
+  name,
+  count,
+}: {
+  name: string
+  count?: number
+}) {
+  const info = powerCardInfo(name)
+
+  return (
+    <div
+      style={{
+        border: '1px solid rgba(197, 151, 73, 0.55)',
+        background:
+          'linear-gradient(145deg, rgba(60, 36, 22, 0.9), rgba(24, 13, 8, 0.95))',
+        padding: '14px 12px',
+        margin: '8px 0',
+        textAlign: 'center',
+      }}
+    >
+      <div className="room-label">
+        CARTA DE PODER{count && count > 1 ? ` · ×${count}` : ''}
+      </div>
+      <h3
+        className="preparation-title"
+        style={{ fontSize: 20, margin: '6px 0 8px' }}
+      >
+        {name}
+      </h3>
+      <p className="preparation-text" style={{ margin: '4px 0' }}>
+        {info.desc}
+      </p>
+      {info.note && (
+        <p
+          className="preparation-text"
+          style={{ margin: '8px 0 0', fontSize: 12, opacity: 0.85 }}
+        >
+          {info.note}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// Agrupa cartas repetidas: [['Furto', 3], ['Roubo', 1]]
+export function groupCards(cards: string[]): [string, number][] {
+  const map = new Map<string, number>()
+  for (const c of cards) map.set(c, (map.get(c) ?? 0) + 1)
+  return [...map.entries()]
 }
 
 export function Wait({ children }: { children: ReactNode }) {
@@ -325,12 +378,17 @@ export function Frame({
                 <p className="preparation-text" style={{ margin: '4px 0' }}>
                   Influência: <strong>{view.me.influence}</strong>
                 </p>
-                <p className="preparation-text" style={{ margin: '4px 0' }}>
-                  Cartas de Poder:{' '}
-                  {view.me.powerCards.length > 0
-                    ? view.me.powerCards.join(', ')
-                    : 'nenhuma'}
-                </p>
+                <div className="room-label" style={{ marginTop: 10 }}>
+                  CARTAS DE PODER ({view.me.powerCards.length} DE 5)
+                </div>
+                {view.me.powerCards.length === 0 && (
+                  <p className="preparation-text" style={{ margin: '4px 0' }}>
+                    Nenhuma carta de Poder.
+                  </p>
+                )}
+                {groupCards(view.me.powerCards).map(([card, count]) => (
+                  <PowerCardView key={card} name={card} count={count} />
+                ))}
                 {view.phase === 'choice' || !view.stats ? null : (
                   <p className="preparation-text" style={{ margin: '4px 0' }}>
                     Cartas Golpe: {view.golpes[view.you]}

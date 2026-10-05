@@ -136,6 +136,9 @@ export default function OnlineTurns({ view, error, send, onLeave }: Props) {
                   },
                 ]}
               />
+              <p className="preparation-text">
+                Cartas de Poder na sua mão: {view.me.powerCards.length} de 5.
+              </p>
               {!t.canGolpe && (
                 <p className="preparation-text">
                   Golpe indisponível: você precisa de uma carta Golpe e não

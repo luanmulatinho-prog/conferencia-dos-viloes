@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ElectionLast, MatchView, Send } from './onlineTypes'
-import { Buttons, Frame, ObjectiveCard, Wait, nm } from './onlineUi'
+import { Buttons, Frame, ObjectiveCard, PowerCardView, Wait, nm } from './onlineUi'
 import OnlineTurns from './OnlineTurns'
 import OnlinePower from './OnlinePower'
 import OnlineParties from './OnlineParties'
@@ -729,8 +729,8 @@ function CommitteeScreen({ view, error, send, onLeave }: ScreenProps) {
 // Roteador
 // ---------------------------------------------------------------------
 
-export default function OnlineMatch({ view, error, onAction, onLeave }: Props) {
-  const p: ScreenProps = { view, error, send: onAction, onLeave }
+function pickScreen(p: ScreenProps) {
+  const { view } = p
 
   // Eleição/indicação no meio de uma fase tem prioridade
   if (view.sub) return <SubScreen {...p} />
@@ -761,3 +761,91 @@ export default function OnlineMatch({ view, error, onAction, onLeave }: Props) {
   }
 }
 
+// ---------------------------------------------------------------------
+// Revelação da carta de Poder recebida
+// ---------------------------------------------------------------------
+
+const SEEN_KEY = 'viloes-seen-card'
+
+function readSeen(): string {
+  try {
+    return sessionStorage.getItem(SEEN_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function CardReveal({
+  card,
+  source,
+  onClose,
+}: {
+  card: string
+  source: 'buy' | 'start'
+  onClose: () => void
+}) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        background: 'rgba(8, 4, 2, 0.9)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 18,
+        overflowY: 'auto',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 420 }}>
+        <div className="eyebrow" style={{ textAlign: 'center' }}>
+          {source === 'buy'
+            ? 'VOCÊ COMPROU UMA CARTA DE PODER'
+            : 'VOCÊ RECEBEU UMA CARTA DE PODER'}
+        </div>
+
+        <PowerCardView name={card} />
+
+        <p
+          className="preparation-text"
+          style={{ textAlign: 'center', fontSize: 12 }}
+        >
+          Só você vê esta carta. Ela fica guardada na sua mão e você pode
+          usá-la na Fase de Poder.
+        </p>
+
+        <button className="primary-button" onClick={onClose}>
+          GUARDAR CARTA
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default function OnlineMatch({ view, error, onAction, onLeave }: Props) {
+  const [seen, setSeen] = useState(readSeen)
+
+  const screen = pickScreen({ view, error, send: onAction, onLeave })
+  const d = view.drawn
+
+  return (
+    <>
+      {screen}
+      {d && d.id !== seen && (
+        <CardReveal
+          card={d.card}
+          source={d.source}
+          onClose={() => {
+            try {
+              sessionStorage.setItem(SEEN_KEY, d.id)
+            } catch {
+              // sem armazenamento: a carta só não será lembrada ao recarregar
+            }
+            setSeen(d.id)
+          }}
+        />
+      )}
+    </>
+  )
+}

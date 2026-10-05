@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { MatchView, PowerPlay, Send } from './onlineTypes'
 import { Frame, Wait, nm } from './onlineUi'
+import { powerCardInfo } from './powerCards'
 
 type Props = {
   view: MatchView
@@ -10,16 +11,6 @@ type Props = {
 }
 
 const NEEDS_TARGET = ['Golpe Baixo', 'Assalto', 'Roubo', 'Furto']
-
-const CARD_INFO: Record<string, string> = {
-  'Golpe Supremo': 'Vira Soberano sem votação (só se o Comitê não distribuiu)',
-  'Golpe Baixo': 'Rouba uma carta Golpe de outro jogador',
-  'Ataque Triplo': 'Permite usar até 3 cartas adicionais',
-  Assalto: 'Rouba 5 Influências (autor e vítima são públicos)',
-  Roubo: 'Rouba 3 Influências (só a vítima sabe)',
-  Furto: 'Rouba 1 Influência (a vítima não sabe quem fez)',
-  'Troca de Gestão': 'Remove o Membro Indicado (autor público)',
-}
 
 // Sem Ataque Triplo: 1 carta. Com Ataque Triplo: ele + 3 adicionais.
 const maxCards = (plays: PowerPlay[]) =>
@@ -114,7 +105,7 @@ export default function OnlinePower({ view, error, send, onLeave }: Props) {
                   {card.toUpperCase()}
                   <br />
                   <small style={{ fontFamily: 'Inter', fontWeight: 400 }}>
-                    {CARD_INFO[card]}
+                    {powerCardInfo(card).desc}
                   </small>
                 </button>
               )

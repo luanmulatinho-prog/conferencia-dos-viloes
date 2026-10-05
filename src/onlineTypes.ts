@@ -74,6 +74,7 @@ export type MatchView = {
   memberInfluence: Record<number, number>
   recap: null | { title: string; lines: string[] }
   privateMsgs: string[]
+  drawn: null | { id: string; card: string; source: 'buy' | 'start' }
   paused: string[]
   sub: SubView | null
 

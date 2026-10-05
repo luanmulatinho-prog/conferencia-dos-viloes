@@ -64,6 +64,7 @@ import {
 } from './lib/parties.mjs'
 
 const NOT_NOW = 'Essa ação não está disponível agora.'
+const newId = () => Math.random().toString(36).slice(2, 10)
 const isInt = Number.isInteger
 
 export function createMatch(roomPlayers) {
@@ -92,6 +93,7 @@ export function createMatch(roomPlayers) {
     final: null,
     recap: null,
     private: {},
+    drawn: {}, // última carta de Poder recebida por jogador (só ele vê)
     connected: [],
   }
 }
@@ -605,6 +607,11 @@ function hTurns(match, idx, a) {
     if (a.choice === 'buy') {
       if (!canBuyPower(g, idx)) return 'Você não pode comprar Poder agora.'
       match.game = buyPower(g, idx)
+
+      // O comprador vê na hora a carta que veio
+      const hand = match.game.players[idx].powerCards
+      match.drawn[idx] = { id: newId(), card: hand[hand.length - 1], source: 'buy' }
+
       advanceTurns(match)
       return null
     }
@@ -1213,6 +1220,15 @@ function hPrep(match, idx, a) {
       let s = match.setup
       for (let i = 0; i < n; i++) s = applyInitialChoice(s, i, match.choices[i])
       match.setup = finishSetup(s)
+
+      // Quem escolheu 2 Influência + 1 Carta de Poder vê a carta que recebeu
+      for (let i = 0; i < n; i++) {
+        const card = match.setup.players[i].powerCards[0]
+        if (match.choices[i] === 'B' && card) {
+          match.drawn[i] = { id: newId(), card, source: 'start' }
+        }
+      }
+
       startElection(match)
     }
     return null
@@ -1399,6 +1415,7 @@ export function viewFor(match, playerId) {
     memberInfluence: {},
     recap: match.recap,
     privateMsgs: match.private[idx] ?? [],
+    drawn: match.drawn[idx] ?? null,
     paused: match.players.filter((p, i) => match.connected[i] === false).map((p) => p.name),
     sub: subView(match, idx),
     election: null,
