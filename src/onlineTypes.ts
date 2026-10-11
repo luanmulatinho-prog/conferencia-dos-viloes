@@ -48,7 +48,13 @@ export type MatchView = {
   you: number
   round: number
   committeeInfluence: number
-  players: { index: number; name: string; icon: string }[]
+  players: {
+    index: number
+    name: string
+    icon: string
+    color: string
+    frame: string
+  }[]
   me: {
     objective: string
     influence: number

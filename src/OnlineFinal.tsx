@@ -1,5 +1,6 @@
 import type { MatchView, Send } from './onlineTypes'
-import { Frame, nm } from './onlineUi'
+import { Frame, nm, tag } from './onlineUi'
+import { PAvatar } from './profileUi'
 import { objectiveInfo } from './objectives'
 
 type Props = {
@@ -43,14 +44,18 @@ export default function OnlineFinal({ view, error, onLeave }: Props) {
         <div className="players-list">
           {f.players.map((p) => (
             <div className="player" key={p.index}>
-              <div className="avatar">{p.fulfilled ? '✓' : '✗'}</div>
+              <PAvatar p={view.players[p.index]} />
               <div className="player-name">
                 <strong>
-                  {nm(view, p.index)}
-                  {p.index === view.you ? ' (você)' : ''}
-                  {p.index === view.soberano ? ' ♛' : ''}
+                  {tag(
+                    view,
+                    p.index,
+                    (p.index === view.you ? ' (você)' : '') +
+                      (p.index === view.soberano ? ' ♛' : '')
+                  )}
                 </strong>
                 <span>
+                  {p.fulfilled ? '✓ ' : '✗ '}
                   {p.objective}: {p.fulfilled ? 'cumprido' : 'não cumprido'} ·{' '}
                   {p.influence} Influência
                 </span>

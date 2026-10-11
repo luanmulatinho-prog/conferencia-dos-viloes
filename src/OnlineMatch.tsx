@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ElectionLast, MatchView, Send } from './onlineTypes'
-import { Buttons, Frame, ObjectiveCard, PowerCardView, Wait, nm } from './onlineUi'
+import { Buttons, Frame, ObjectiveCard, PowerCardView, Wait, nm, tag } from './onlineUi'
+import { PAvatar } from './profileUi'
 import OnlineTurns from './OnlineTurns'
 import OnlinePower from './OnlinePower'
 import OnlineParties from './OnlineParties'
@@ -91,7 +92,7 @@ function VoteBody({
               <div className="room-label">EMPATE! ESCOLHA O MEMBRO ELEITO</div>
               <Buttons
                 items={tied.map((c) => ({
-                  label: nm(view, c),
+                  label: tag(view, c),
                   onClick: () => send({ kind: tieKind, candidate: c }),
                 }))}
               />
@@ -118,7 +119,7 @@ function VoteBody({
               items={candidates
                 .filter((c) => c !== view.you)
                 .map((c) => ({
-                  label: `${view.players[c].icon} ${nm(view, c)}`,
+                  label: tag(view, c),
                   onClick: () => send({ kind: voteKind, candidate: c }),
                 }))}
             />
@@ -157,7 +158,7 @@ function AppointBody({
           <div className="room-label">ESCOLHA O MEMBRO INDICADO</div>
           <Buttons
             items={options.map((c) => ({
-              label: `${view.players[c].icon} ${nm(view, c)}`,
+              label: tag(view, c),
               onClick: () => send({ kind, candidate: c }),
             }))}
           />
@@ -473,11 +474,10 @@ function SovereignScreen({ view, error, send, onLeave }: ScreenProps) {
             <div className="players-list">
               {view.players.map((p) => (
                 <div className="player" key={p.index}>
-                  <div className="avatar">{p.icon}</div>
+                  <PAvatar p={p} />
                   <div className="player-name">
                     <strong>
-                      {p.name}
-                      {p.index === view.you ? ' (você)' : ''}
+                      {tag(view, p.index, p.index === view.you ? ' (você)' : '')}
                     </strong>
                     {roleOf(p.index) && <span>{roleOf(p.index)}</span>}
                   </div>
@@ -623,9 +623,9 @@ function CommitteeScreen({ view, error, send, onLeave }: ScreenProps) {
                 const canReceive = c.recipients.includes(p.index)
                 return (
                   <div className="player" key={p.index}>
-                    <div className="avatar">{p.icon}</div>
+                    <PAvatar p={p} />
                     <div className="player-name">
-                      <strong>{p.name}</strong>
+                      <strong>{tag(view, p.index)}</strong>
                       {p.index === view.soberano && <span>SOBERANO</span>}
                       {p.index === view.elected && <span>MEMBRO ELEITO</span>}
                       {p.index === view.appointed && <span>MEMBRO INDICADO</span>}

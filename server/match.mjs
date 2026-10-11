@@ -74,6 +74,8 @@ export function createMatch(roomPlayers) {
       index: i,
       name: p.name,
       icon: p.icon,
+      color: p.color,
+      frame: p.frame,
     })),
     // choice -> election -> appoint -> (rodadas) -> final
     phase: 'choice',
@@ -1376,7 +1378,7 @@ export function viewFor(match, playerId) {
     you: idx,
     round: g ? g.round : 0,
     committeeInfluence: g ? g.committeeInfluence : 0,
-    players: match.players.map((p) => ({ index: p.index, name: p.name, icon: p.icon })),
+    players: match.players.map((p) => ({ index: p.index, name: p.name, icon: p.icon, color: p.color, frame: p.frame })),
     me: {
       objective: me.objective,
       influence: me.influence,

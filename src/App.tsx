@@ -2,11 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import LocalGame from './LocalGame'
 import OnlineMatch, { type MatchView } from './OnlineMatch'
+import {
+  PAvatar,
+  PlayerTag,
+  ProfileEditor,
+  loadProfile,
+  saveProfile,
+  type Look,
+} from './profileUi'
 
 type RoomPlayer = {
   id: number
   name: string
   icon: string
+  color: string
+  frame: string
   connected: boolean
 }
 
@@ -19,8 +29,6 @@ type RoomState = {
 }
 
 type Screen = 'home' | 'join' | 'lobby' | 'started' | 'local'
-
-const ICONS = ['♛', '♚', '♞', '♜', '☠', '⚔', '⚜', '☥']
 
 // Endereço do servidor: no modo de desenvolvimento (Vite) o WebSocket fica na
 // porta 3001; no site publicado ele usa o mesmo endereço da página.
@@ -47,8 +55,9 @@ function Corners() {
 
 function App() {
   const [screen, setScreen] = useState<Screen>('home')
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState(ICONS[0])
+  const [name, setName] = useState(() => loadProfile().name)
+  const [profile, setProfile] = useState<Look>(() => loadProfile().look)
+  const [editing, setEditing] = useState(false)
   const [joinCode, setJoinCode] = useState('')
   const [room, setRoom] = useState<RoomState | null>(null)
   const [myId, setMyId] = useState<number | null>(null)
@@ -275,43 +284,26 @@ function App() {
               <span>✦</span>
             </div>
 
-            <div className="room-label">ESCOLHA SEU ÍCONE</div>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                gap: 8,
-                margin: '12px 0 4px',
+            <div className="room-label">SEU PERFIL</div>
+            <ProfileEditor
+              value={profile}
+              onChange={(v) => {
+                setProfile(v)
+                saveProfile(v, name)
               }}
-            >
-              {ICONS.map((i) => (
-                <button
-                  key={i}
-                  className="copy-button"
-                  onClick={() => setIcon(i)}
-                  style={
-                    icon === i
-                      ? {
-                          borderColor: '#f1d28a',
-                          color: '#f1d28a',
-                          background: 'rgba(100, 61, 27, 0.5)',
-                          fontSize: 18,
-                        }
-                      : { fontSize: 18 }
-                  }
-                >
-                  {i}
-                </button>
-              ))}
-            </div>
+              others={[]}
+              name={name}
+            />
 
             <input
               className="room-input"
               style={{ fontSize: 16, letterSpacing: 1, textTransform: 'none' }}
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value)
+                saveProfile(profile, e.target.value)
+              }}
               placeholder="Seu nome"
               maxLength={16}
               autoComplete="off"
@@ -327,7 +319,7 @@ function App() {
               className="primary-button"
               style={{ marginTop: 18 }}
               disabled={!nameOk}
-              onClick={() => request({ type: 'create', name, icon })}
+              onClick={() => request({ type: 'create', name, profile })}
             >
               <span className="button-crown">♛</span>
               CRIAR PARTIDA
@@ -407,7 +399,7 @@ function App() {
               style={{ marginTop: 18 }}
               disabled={joinCode.trim().length !== 4}
               onClick={() =>
-                request({ type: 'join', code: joinCode, name, icon })
+                request({ type: 'join', code: joinCode, name, profile })
               }
             >
               ENTRAR NA PARTIDA
@@ -500,11 +492,14 @@ function App() {
                   <span className="player-number">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <div className="avatar">{p.icon}</div>
+                  <PAvatar p={p} />
                   <div className="player-name">
                     <strong>
-                      {p.name}
-                      {p.id === myId ? ' (você)' : ''}
+                      <PlayerTag
+                        p={p}
+                        name={p.name}
+                        suffix={p.id === myId ? ' (você)' : ''}
+                      />
                     </strong>
                     {p.id === room.hostId && <span>HOST</span>}
                     {!p.connected && <span>DESCONECTADO</span>}
@@ -539,6 +534,37 @@ function App() {
               </div>
             )}
           </section>
+
+          {screen === 'lobby' && (() => {
+            const mine = room.players.find((p) => p.id === myId)
+            if (!mine) return null
+            return (
+              <section className="players-card" style={{ marginTop: 14 }}>
+                <header className="players-header">
+                  <span className="section-label">SEU PERFIL</span>
+                  <button className="copy-button" onClick={() => setEditing(!editing)}>
+                    {editing ? 'FECHAR' : 'EDITAR'}
+                  </button>
+                </header>
+                {editing ? (
+                  <ProfileEditor
+                    value={mine}
+                    others={room.players.filter((p) => p.id !== myId)}
+                    name={mine.name}
+                    onChange={(v) => {
+                      setProfile(v)
+                      saveProfile(v, mine.name)
+                      request({ type: 'profile', profile: v })
+                    }}
+                  />
+                ) : (
+                  <div className="pe-preview">
+                    <PlayerTag p={mine} name={mine.name} />
+                  </div>
+                )}
+              </section>
+            )
+          })()}
 
           {error && (
             <p className="preparation-text" style={{ color: '#e0a080' }}>

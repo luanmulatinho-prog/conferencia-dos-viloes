@@ -1,0 +1,182 @@
+/* Identificação visual dos jogadores: símbolo, cor e moldura */
+
+.sym {
+  font-variant-emoji: text;
+  font-family: 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Noto Sans Symbols',
+    'DejaVu Sans', serif;
+  line-height: 1;
+}
+
+.pavatar {
+  border: 2px solid var(--pc, #c9a45c) !important;
+  color: var(--pc, #c9a45c) !important;
+  font-size: 20px;
+  background: rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--pc, #c9a45c) 35%, transparent);
+}
+
+.ptag {
+  --bg: #1a0f09;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px;
+  margin: 2px 0;
+  border: 1px solid transparent;
+  vertical-align: middle;
+  max-width: 100%;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+}
+.ptag b {
+  font-weight: normal;
+  font-size: inherit;
+  display: inline;
+}
+.ptag .ptag-sym {
+  color: var(--pc);
+  font-size: 1.15em;
+}
+.ptag .ptag-name {
+  color: #ecdcb5; /* o nome sempre fica claro: a cor vai só no símbolo e na moldura */
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ptag.f-line {
+  border: 1px solid var(--pc);
+}
+.ptag.f-double {
+  border: 4px double var(--pc);
+  padding: 1px 9px;
+}
+.ptag.f-dotted {
+  border: 2px dotted var(--pc);
+}
+.ptag.f-round {
+  border: 1px solid var(--pc);
+  border-radius: 999px;
+  padding: 3px 14px;
+}
+.ptag.f-corners {
+  padding: 4px 12px;
+  background:
+    linear-gradient(var(--pc), var(--pc)) top left / 8px 2px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) top left / 2px 8px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) top right / 8px 2px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) top right / 2px 8px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) bottom left / 8px 2px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) bottom left / 2px 8px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) bottom right / 8px 2px no-repeat,
+    linear-gradient(var(--pc), var(--pc)) bottom right / 2px 8px no-repeat;
+}
+.ptag.f-glow {
+  border: 1px solid var(--pc);
+  border-radius: 6px;
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--pc) 55%, transparent),
+    inset 0 0 6px color-mix(in srgb, var(--pc) 25%, transparent);
+}
+.ptag.f-royal {
+  border: 1px solid var(--pc);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--pc);
+  margin: 8px 4px 4px;
+  padding: 3px 12px;
+}
+.ptag.f-royal::before {
+  content: '♔\FE0E';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  color: var(--pc);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 4px;
+}
+.ptag.f-dark {
+  border: 1px solid color-mix(in srgb, var(--pc) 60%, #000);
+  border-left: 5px solid var(--pc);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Editor de perfil (início e lobby) */
+.pe {
+  text-align: left;
+  margin-top: 10px;
+}
+.pe-title {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #8f7b5d;
+}
+.pe-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pe-sym,
+.pe-frame {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #5a4630;
+  color: #e7d4aa;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.pe-sym {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  position: relative;
+}
+.pe-sym.on,
+.pe-frame.on {
+  border-color: var(--pc, #e6c04a);
+  box-shadow: 0 0 0 2px var(--pc, #e6c04a);
+}
+.pe-sym .used {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  font-size: 9px;
+  color: #8f7b5d;
+}
+.pe-color {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #1a0f09;
+  cursor: pointer;
+  background: var(--pc);
+  padding: 0;
+}
+.pe-color.on {
+  box-shadow: 0 0 0 2px #ecdcb5;
+}
+.pe-color:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.pe-frame {
+  padding: 10px 8px;
+  min-width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pe-preview {
+  margin: 12px 0 2px;
+  text-align: center;
+}
+.pe-preview .ptag {
+  font-size: 16px;
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { MatchView, PowerPlay, Send } from './onlineTypes'
-import { Frame, Wait, nm } from './onlineUi'
+import { Frame, Wait, nm, tag } from './onlineUi'
 import { powerCardInfo } from './powerCards'
 
 type Props = {
@@ -73,7 +73,7 @@ export default function OnlinePower({ view, error, send, onLeave }: Props) {
                   className="secondary-button"
                   onClick={() => add(pending.handIndex, pending.card, x.index)}
                 >
-                  {x.icon} {x.name}
+                  {tag(view, x.index)}
                   {view.golpes[x.index] > 0 && pending.card === 'Golpe Baixo'
                     ? ` (${view.golpes[x.index]} Golpe)`
                     : ''}

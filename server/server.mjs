@@ -13,6 +13,7 @@ import { buildLib } from './build-lib.mjs'
 // Converte a lógica TypeScript (src/) para JavaScript antes de carregar a partida
 buildLib()
 const { createMatch, handleAction, viewFor } = await import('./match.mjs')
+const { pickFree, isValidProfile, isTaken } = await import('./lib/profile.mjs')
 
 // Hospedagens definem a porta pela variável PORT
 const PORT = Number(process.env.PORT) || 3001
@@ -49,6 +50,8 @@ function view(room) {
       id: p.id,
       name: p.name,
       icon: p.icon,
+      color: p.color,
+      frame: p.frame,
       connected: p.connected,
     })),
   }
@@ -75,16 +78,15 @@ function cleanName(value) {
   return String(value ?? '').trim().slice(0, 16)
 }
 
-function cleanIcon(value) {
-  return String(value ?? '♛').slice(0, 4)
-}
-
-function addPlayer(room, ws, name, icon) {
+function addPlayer(room, ws, name, wanted) {
+  const profile = pickFree(room.players, wanted)
   const player = {
     id: nextId++,
     token: randomBytes(12).toString('hex'),
     name,
-    icon,
+    icon: profile.icon,
+    color: profile.color,
+    frame: profile.frame,
     ws,
     connected: true,
     timer: null,
@@ -160,7 +162,7 @@ function handle(ws, msg) {
       match: null,
       idleTimer: null,
     }
-    const player = addPlayer(room, ws, name, cleanIcon(msg.icon))
+    const player = addPlayer(room, ws, name, msg.profile)
     room.hostId = player.id
     rooms.set(room.code, room)
 
@@ -189,7 +191,7 @@ function handle(ws, msg) {
       })
     }
 
-    const player = addPlayer(room, ws, name, cleanIcon(msg.icon))
+    const player = addPlayer(room, ws, name, msg.profile)
     joined(ws, room, player)
     broadcast(room, { type: 'room', room: view(room) })
     return
@@ -236,6 +238,28 @@ function handle(ws, msg) {
     broadcast(room, { type: 'room', room: view(room) })
     pushViews(room)
     return
+  }
+
+  // Troca de símbolo/cor/moldura (só no lobby)
+  if (msg.type === 'profile') {
+    const room = ws.room
+    const player = ws.player
+    if (!room || !player || room.started) return
+
+    const p = msg.profile
+    if (!isValidProfile(p)) return
+    const others = room.players.filter((o) => o.id !== player.id)
+    if (isTaken(others, p.icon, p.color)) {
+      send(ws, {
+        type: 'error',
+        message: 'Outro jogador já usa esse símbolo com essa cor.',
+      })
+      return send(ws, { type: 'room', room: view(room) })
+    }
+    player.icon = p.icon
+    player.color = p.color
+    player.frame = p.frame
+    return broadcast(room, { type: 'room', room: view(room) })
   }
 
   if (msg.type === 'start') {

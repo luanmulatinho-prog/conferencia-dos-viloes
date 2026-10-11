@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import type { MatchView, Send } from './onlineTypes'
-import { Buttons, Frame, Stepper, Wait, nm } from './onlineUi'
+import { Buttons, Frame, Stepper, Wait, nm, tag } from './onlineUi'
 
 type Props = {
   view: MatchView
@@ -208,7 +208,7 @@ export default function OnlineParties({ view, error, send, onLeave }: Props) {
         <Buttons
           items={[
             ...expellable.map((i) => ({
-              label: nm(view, i),
+              label: tag(view, i),
               onClick: () => {
                 send({ kind: 'pexpel', target: i })
                 back()
@@ -229,7 +229,7 @@ export default function OnlineParties({ view, error, send, onLeave }: Props) {
         <Buttons
           items={[
             ...indicatable.map((i) => ({
-              label: nm(view, i),
+              label: tag(view, i),
               onClick: () => {
                 send({ kind: 'pindicate', player: i })
                 back()
@@ -407,13 +407,11 @@ export default function OnlineParties({ view, error, send, onLeave }: Props) {
                   Líder: {nm(view, p.leaderId)} · Cofre: {p.influence}
                 </span>
                 <span>
-                  {p.memberIds
-                    .map(
-                      (i) =>
-                        nm(view, i) +
-                        (par.pendingLeaves.includes(i) ? ' (saindo)' : '')
-                    )
-                    .join(', ')}
+                  {p.memberIds.map((i) => (
+                    <span key={i} style={{ marginRight: 6 }}>
+                      {tag(view, i, par.pendingLeaves.includes(i) ? ' (saindo)' : '')}
+                    </span>
+                  ))}
                 </span>
               </div>
             </div>
@@ -505,7 +503,7 @@ export default function OnlineParties({ view, error, send, onLeave }: Props) {
             {par.sentOffers.map((o) => (
               <div className="player" key={o.id} style={{ marginTop: 6 }}>
                 <div className="player-name">
-                  <strong>{nm(view, o.target)}</strong>
+                  <strong>{tag(view, o.target)}</strong>
                   <span>oferta de {o.offer} · aguardando resposta</span>
                 </div>
                 <button
@@ -538,7 +536,7 @@ export default function OnlineParties({ view, error, send, onLeave }: Props) {
                   style={{ margin: '3px 0', textAlign: 'left' }}
                   key={c.player}
                 >
-                  <strong>{nm(view, c.player)}</strong>:{' '}
+                  <strong>{tag(view, c.player)}</strong>:{' '}
                   {c.plays
                     .map(
                       (p) =>

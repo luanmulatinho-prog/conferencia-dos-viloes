@@ -2,9 +2,16 @@ import { useState, type ReactNode } from 'react'
 import type { MatchView } from './onlineTypes'
 import { objectiveInfo } from './objectives'
 import { powerCardInfo } from './powerCards'
+import { PAvatar, PlayerTag } from './profileUi'
 
 export const nm = (v: MatchView, i: number | null | undefined) =>
   i === null || i === undefined ? '—' : (v.players[i]?.name ?? '?')
+
+// Nome com símbolo, cor e moldura do jogador
+export const tag = (v: MatchView, i: number | null | undefined, suffix?: string) => {
+  const p = i === null || i === undefined ? undefined : v.players[i]
+  return p ? <PlayerTag p={p} name={p.name} suffix={suffix} /> : <>—</>
+}
 
 export function Corners() {
   return (
@@ -18,7 +25,7 @@ export function Corners() {
 }
 
 export type Item = {
-  label: string
+  label: ReactNode
   onClick: () => void
   disabled?: boolean
   primary?: boolean
@@ -317,11 +324,10 @@ export function Frame({
                 <div className="players-list">
                   {view.players.map((p) => (
                     <div className="player" key={p.index}>
-                      <div className="avatar">{p.icon}</div>
+                      <PAvatar p={p} />
                       <div className="player-name">
                         <strong>
-                          {p.name}
-                          {p.index === view.you ? ' (você)' : ''}
+                          {tag(view, p.index, p.index === view.you ? ' (você)' : '')}
                         </strong>
                         <span>
                           {role(p.index) || 'sem cargo'} ·{' '}

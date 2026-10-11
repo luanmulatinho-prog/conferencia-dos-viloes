@@ -18,6 +18,7 @@ const FILES = [
   'turns',
   'power',
   'parties',
+  'profile',
 ]
 
 export function buildLib() {

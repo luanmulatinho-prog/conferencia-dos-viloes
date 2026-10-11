@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { MatchView, Send } from './onlineTypes'
-import { Buttons, Frame, Stepper, Wait, nm } from './onlineUi'
+import { Buttons, Frame, Stepper, Wait, nm, tag } from './onlineUi'
+import { PAvatar } from './profileUi'
 
 type Props = {
   view: MatchView
@@ -79,11 +80,10 @@ export default function OnlineTurns({ view, error, send, onLeave }: Props) {
                     done ? { filter: 'grayscale(1)', opacity: 0.5 } : undefined
                   }
                 >
-                  <div className="avatar">{p.icon}</div>
+                  <PAvatar p={p} />
                   <div className="player-name">
                     <strong>
-                      {p.name}
-                      {p.index === view.you ? ' (você)' : ''}
+                      {tag(view, p.index, p.index === view.you ? ' (você)' : '')}
                     </strong>
                     {p.index === view.soberano && <span>SOBERANO</span>}
                     {done && <span>JÁ TEVE SEU TURNO</span>}
